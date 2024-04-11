@@ -121,6 +121,7 @@ class ActionManager(ManagerBase):
         # create buffers to store actions
         self._action = torch.zeros((self.num_envs, self.total_action_dim), device=self.device)
         self._prev_action = torch.zeros_like(self._action)
+        self._prev_prev_action = torch.zeros_like(self._action)
 
     def __str__(self) -> str:
         """Returns: A string representation for action manager."""
@@ -171,6 +172,11 @@ class ActionManager(ManagerBase):
         """The previous actions sent to the environment. Shape is (num_envs, total_action_dim)."""
         return self._prev_action
 
+    @property
+    def prev_prev_action(self) -> torch.Tensor:
+        """The second previous actions sent to the environment. Shape is (num_envs, total_action_dim)."""
+        return self._prev_prev_action
+
     """
     Operations.
     """
@@ -189,6 +195,7 @@ class ActionManager(ManagerBase):
         if env_ids is None:
             env_ids = slice(None)
         # reset the action history
+        self._prev_prev_action[env_ids] = 0.0
         self._prev_action[env_ids] = 0.0
         self._action[env_ids] = 0.0
         # reset all action terms
@@ -210,6 +217,7 @@ class ActionManager(ManagerBase):
         if self.total_action_dim != action.shape[1]:
             raise ValueError(f"Invalid action shape, expected: {self.total_action_dim}, received: {action.shape[1]}.")
         # store the input actions
+        self._prev_prev_action[:] = self._prev_action
         self._prev_action[:] = self._action
         self._action[:] = action.to(self.device)
 
