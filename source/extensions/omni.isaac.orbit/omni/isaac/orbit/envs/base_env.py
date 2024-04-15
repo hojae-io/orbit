@@ -117,6 +117,9 @@ class BaseEnv:
             self.scene = InteractiveScene(self.cfg.scene)
         print("[INFO]: Scene manager: ", self.scene)
 
+        self._init_buffers()
+        print("[INFO]: Buffers initialized.")
+
         # set up camera viewport controller
         # viewport is not available in other rendering modes so the function will throw a warning
         # FIXME: This needs to be fixed in the future when we unify the UI functionalities even for
@@ -185,6 +188,9 @@ class BaseEnv:
     """
     Operations - Setup.
     """
+
+    def _init_buffers(self):
+        pass
 
     def load_managers(self):
         """Load the managers for the environment.

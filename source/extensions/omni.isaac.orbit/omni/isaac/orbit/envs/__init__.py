@@ -26,3 +26,5 @@ from .base_env import BaseEnv, VecEnvObs
 from .base_env_cfg import BaseEnvCfg, ViewerCfg
 from .rl_task_env import RLTaskEnv, VecEnvStepReturn
 from .rl_task_env_cfg import RLTaskEnvCfg
+
+from extensions.humanoid.task import HumanoidVanillaEnv

@@ -180,6 +180,7 @@ class RLTaskEnv(BaseEnv, gym.Env):
         # -- update env counters (used for curriculum generation)
         self.episode_length_buf += 1  # step in current episode (per env)
         self.common_step_counter += 1  # total step (common for all envs)
+        self._post_physics_step_callback()
         # -- check terminations
         self.reset_buf = self.termination_manager.compute()
         self.reset_terminated = self.termination_manager.terminated
@@ -203,6 +204,10 @@ class RLTaskEnv(BaseEnv, gym.Env):
         # return observations, rewards, resets and extras
         return self.obs_buf, self.reward_buf, self.reset_terminated, self.reset_time_outs, self.extras
 
+    def _post_physics_step_callback(self):
+        """Callback function called after each physics step."""
+        pass
+    
     def render(self) -> np.ndarray | None:
         """Run rendering without stepping through the physics.
 
