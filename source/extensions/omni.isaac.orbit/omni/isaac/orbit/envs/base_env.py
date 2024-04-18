@@ -117,9 +117,6 @@ class BaseEnv:
             self.scene = InteractiveScene(self.cfg.scene)
         print("[INFO]: Scene manager: ", self.scene)
 
-        self._init_buffers()
-        print("[INFO]: Buffers initialized.")
-
         # set up camera viewport controller
         # viewport is not available in other rendering modes so the function will throw a warning
         # FIXME: This needs to be fixed in the future when we unify the UI functionalities even for
@@ -136,6 +133,10 @@ class BaseEnv:
             print("[INFO]: Starting the simulation. This may take a few seconds. Please wait...")
             with Timer("[INFO]: Time taken for simulation start"):
                 self.sim.reset()
+
+            self._init_buffers()
+            print("[INFO]: Buffers initialized.")
+            
             # add timeline event to load managers
             self.load_managers()
 
