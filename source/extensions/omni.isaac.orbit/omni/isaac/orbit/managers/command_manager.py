@@ -364,6 +364,15 @@ class CommandManager(ManagerBase):
             The command term with the specified name.
         """
         return self._terms[name]
+    
+    def set_command(self, name: str, command: torch.Tensor):
+        """Sets the command for the specified command term.
+
+        Args:
+            name: The name of the command term.
+            command: The command tensor to set.
+        """
+        self._terms[name].command = command
 
     """
     Helper functions.

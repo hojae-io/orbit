@@ -18,6 +18,7 @@ from omni.isaac.orbit.managers import CommandManager, CurriculumManager, RewardM
 
 from .base_env import BaseEnv, VecEnvObs
 from .rl_task_env_cfg import RLTaskEnvCfg
+from omni.isaac.orbit.devices import BaseKeyboard
 
 VecEnvStepReturn = tuple[VecEnvObs, torch.Tensor, torch.Tensor, torch.Tensor, dict]
 """The environment signals processed at the end of each step.
@@ -97,6 +98,11 @@ class RLTaskEnv(BaseEnv, gym.Env):
         # perform events at the start of the simulation
         if "startup" in self.event_manager.available_modes:
             self.event_manager.apply(mode="startup")
+
+        if self.sim.has_gui():
+            self._setup_keyboard_interface()
+            print(self.keyboard_interface, '\n')
+        
         # print the environment information
         print("[INFO]: Completed setting up the environment...")
 
@@ -175,6 +181,8 @@ class RLTaskEnv(BaseEnv, gym.Env):
         # perform rendering if gui is enabled
         if self.sim.has_gui():
             self.sim.render()
+            # check for keyboard events
+            self.keyboard_interface.advance()
 
         # post-step:
         # -- update env counters (used for curriculum generation)
@@ -207,6 +215,9 @@ class RLTaskEnv(BaseEnv, gym.Env):
     def _post_physics_step_callback(self):
         """Callback function called after each physics step."""
         pass
+
+    def _setup_keyboard_interface(self):
+        self.keyboard_interface = BaseKeyboard(self)
     
     def render(self) -> np.ndarray | None:
         """Run rendering without stepping through the physics.
