@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import gymnasium as gym
 import torch
+import numpy as np
 
 from rsl_rl.env import VecEnv
 
@@ -119,6 +120,11 @@ class RslRlVecEnvWrapper(VecEnv):
         This will be the bare :class:`gymnasium.Env` environment, underneath all layers of wrappers.
         """
         return self.env.unwrapped
+    
+    @property
+    def viewport_camera_image(self) -> np.ndarray:
+        """Returns the viewport camera image."""
+        return self.env.get_viewport_camera_image()
 
     """
     Properties

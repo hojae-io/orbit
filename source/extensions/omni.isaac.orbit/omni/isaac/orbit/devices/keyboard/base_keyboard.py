@@ -29,7 +29,9 @@ class BaseKeyboard(DeviceBase):
         Basic Command          Key 
         ====================== ================
         Reset                  R       
-        ====================== ================ ================
+        Screenshot             X
+        Record                 W
+        ====================== ================
 
     .. seealso::
 
@@ -67,6 +69,8 @@ class BaseKeyboard(DeviceBase):
         msg += f"\tKeyboard name: {self._input.get_keyboard_name(self._keyboard)}\n"
         msg += "\t----------------------------------------------\n"
         msg += "\tReset : R\n"
+        msg += "\tScreenshot : X\n"
+        msg += "\tRecord : W\n"
         return msg
 
     """
@@ -108,6 +112,10 @@ class BaseKeyboard(DeviceBase):
         if event.type == carb.input.KeyboardEventType.KEY_PRESS:
             if event.input.name == "R":
                 self.env.reset()
+            elif event.input.name == "X":
+                self.env.screenshot = True
+            elif event.input.name == "W":
+                self.env.record = True
 
         # since no error, we are fine :)
         return True

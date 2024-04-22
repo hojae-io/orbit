@@ -92,6 +92,8 @@ class RLTaskEnv(BaseEnv, gym.Env):
         self.common_step_counter = 0
         # -- init buffers
         self.episode_length_buf = torch.zeros(self.num_envs, device=self.device, dtype=torch.long)
+        self.screenshot = False
+        self.record = False
 
         # setup the action and observation spaces for Gym
         self._configure_gym_env_spaces()
@@ -102,6 +104,7 @@ class RLTaskEnv(BaseEnv, gym.Env):
         if self.sim.has_gui():
             self._setup_keyboard_interface()
             print(self.keyboard_interface, '\n')
+            self._create_rgb_annotator()
         
         # print the environment information
         print("[INFO]: Completed setting up the environment...")
@@ -252,21 +255,13 @@ class RLTaskEnv(BaseEnv, gym.Env):
                 )
             # create the annotator if it does not exist
             if not hasattr(self, "_rgb_annotator"):
-                import omni.replicator.core as rep
-
-                # create render product
-                self._render_product = rep.create.render_product(
-                    self.cfg.viewer.cam_prim_path, self.cfg.viewer.resolution
-                )
-                # create rgb annotator -- used to read data from the render product
-                self._rgb_annotator = rep.AnnotatorRegistry.get_annotator("rgb", device="cpu")
-                self._rgb_annotator.attach([self._render_product])
+                self._create_rgb_annotator()
             # obtain the rgb data
             rgb_data = self._rgb_annotator.get_data()
             # convert to numpy array
             rgb_data = np.frombuffer(rgb_data, dtype=np.uint8).reshape(*rgb_data.shape)
             # return the rgb data
-            # note: initially the renerer is warming up and returns empty data
+            # note: initially the renderer is warming up and returns empty data
             if rgb_data.size == 0:
                 return np.zeros((self.cfg.viewer.resolution[1], self.cfg.viewer.resolution[0], 3), dtype=np.uint8)
             else:
@@ -275,6 +270,34 @@ class RLTaskEnv(BaseEnv, gym.Env):
             raise NotImplementedError(
                 f"Render mode '{self.render_mode}' is not supported. Please use: {self.metadata['render_modes']}."
             )
+
+    def _create_rgb_annotator(self):
+        import omni.replicator.core as rep
+
+        # create render product
+        self._render_product = rep.create.render_product(
+            self.cfg.viewer.cam_prim_path, self.cfg.viewer.resolution
+        )
+        # create rgb annotator -- used to read data from the render product
+        self._rgb_annotator = rep.AnnotatorRegistry.get_annotator("rgb", device="cpu")
+        self._rgb_annotator.attach([self._render_product])
+
+    def get_viewport_camera_image(self) -> np.ndarray:
+        """Get the image from the viewport camera.
+
+        Returns:
+            The image from the viewport camera as a numpy array.
+        """
+        # obtain the rgb data
+        rgb_data = self._rgb_annotator.get_data()
+        # convert to numpy array
+        rgb_data = np.frombuffer(rgb_data, dtype=np.uint8).reshape(*rgb_data.shape)
+        # return the rgb data
+        # note: initially the renderer is warming up and returns empty data
+        if rgb_data.size == 0:
+            return np.zeros((self.cfg.viewer.resolution[1], self.cfg.viewer.resolution[0], 3), dtype=np.uint8)
+        else:
+            return rgb_data[:, :, :3]
 
     def close(self):
         if not self._is_closed:
