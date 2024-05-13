@@ -30,6 +30,7 @@ from .actuator_cfg import (
     DCMotorCfg,
     IdealPDActuatorCfg,
     ImplicitActuatorCfg,
+    TorqueActuatorCfg,
 )
 from .actuator_net import ActuatorNetLSTM, ActuatorNetMLP
-from .actuator_pd import DCMotor, IdealPDActuator, ImplicitActuator
+from .actuator_pd import DCMotor, IdealPDActuator, ImplicitActuator, TorqueActuator
