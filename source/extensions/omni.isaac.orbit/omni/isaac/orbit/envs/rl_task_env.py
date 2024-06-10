@@ -183,8 +183,6 @@ class RLTaskEnv(BaseEnv, gym.Env):
         # perform rendering if gui is enabled
         if self.sim.has_gui():
             self.sim.render()
-            # check for keyboard events
-            self.keyboard_interface.advance()
 
         # post-step:
         # -- update env counters (used for curriculum generation)

@@ -3,7 +3,7 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
-"""Keyboard controller for SE(2) control."""
+"""Base Keyboard Controller"""
 
 from __future__ import annotations
 
@@ -65,7 +65,7 @@ class BaseKeyboard(DeviceBase):
 
     def __str__(self) -> str:
         """Returns: A string containing the information of joystick."""
-        msg = f"Base Keyboard Controller: {self.__class__.__name__}\n"
+        msg = f"\tKeyboard Controller: {self.__class__.__name__}\n"
         msg += f"\tKeyboard name: {self._input.get_keyboard_name(self._keyboard)}\n"
         msg += "\t----------------------------------------------\n"
         msg += "\tReset : R\n"
@@ -101,21 +101,37 @@ class BaseKeyboard(DeviceBase):
     """
     Internal helpers.
     """
+    def _reset(self):
+        self.env.reset()
+        print("Environment reset.")
+
+    def _screenshot(self):
+        self.env.screenshot = True
+        print("Screenshot taken.")
+
+    def _record(self):
+        self.env.record = True
+        print("Recording.")
+
+    def _get_key_action_map(self):
+        """Returns the key action map for the keyboard.
+
+        Returns:
+            dict: The key action map.
+        """
+        key_action_map = {
+            "R": self._reset,
+            "X": self._screenshot,
+            "W": self._record,
+        }
+        return key_action_map
 
     def _on_keyboard_event(self, event, *args, **kwargs):
-        """Subscriber callback to when kit is updated.
+        key_action_map = self._get_key_action_map()
 
-        Reference:
-            https://docs.omniverse.nvidia.com/kit/docs/carbonite/latest/docs/python/carb.html?highlight=keyboardeventtype#carb.input.KeyboardInput
-        """
-        # apply the command when pressed
         if event.type == carb.input.KeyboardEventType.KEY_PRESS:
-            if event.input.name == "R":
-                self.env.reset()
-            elif event.input.name == "X":
-                self.env.screenshot = True
-            elif event.input.name == "W":
-                self.env.record = True
-
-        # since no error, we are fine :)
+            action = key_action_map.get(event.input.name)
+            if action:
+                action()
+        
         return True
