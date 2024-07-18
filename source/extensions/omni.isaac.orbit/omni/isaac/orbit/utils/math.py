@@ -90,7 +90,7 @@ def normalize(x: torch.Tensor, eps: float = 1e-9) -> torch.Tensor:
     return x / x.norm(p=2, dim=-1).clamp(min=eps, max=None).unsqueeze(-1)
 
 
-@torch.jit.script
+# @torch.jit.script
 def wrap_to_pi(angles: torch.Tensor) -> torch.Tensor:
     """Wraps input angles (in radians) to the range [-pi, pi].
 
